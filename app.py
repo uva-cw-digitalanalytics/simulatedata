@@ -171,7 +171,7 @@ if "generated_data" in st.session_state:
     csv = io.StringIO()
     data.to_csv(csv, index=False)
     st.download_button(
-        "⬇ Download CSV",
+        "⬇  Download CSV",
         csv.getvalue(),
         file_name="ab_test_data.csv",
         mime="text/csv",
