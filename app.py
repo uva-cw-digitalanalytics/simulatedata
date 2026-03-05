@@ -203,6 +203,13 @@ if "generated_data" in st.session_state:
     data2= data.drop(columns=[ab_col])
     data2.rename(columns={"id": "ID"}, inplace=True) #change id column name for one of the files
 
+    st.markdown("""
+    <style>
+    [data-testid="stElementToolbar"] {
+        display: none;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     st.subheader("Preview")
     st.dataframe(data.head(100), use_container_width=True)
 
