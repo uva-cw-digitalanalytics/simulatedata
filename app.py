@@ -197,8 +197,12 @@ def generate_data() -> pd.DataFrame:
 
 # ── Generate & display ───────────────────────────────────────────────────────
 if st.button("Simulate Data", type="primary", use_container_width=True):
+    _all_names = [ab_col.strip(), dv_col.strip()] + [c["name"].strip() for c in st.session_state.covariates if c["name"].strip()]
+    _dupes = {n for n in _all_names if _all_names.count(n) > 1}
     if not ab_col.strip() or not dv_col.strip():
         st.error("Please enter names for both the A/B test variable and the dependent variable.")
+    elif _dupes:
+        st.error(f"Duplicate variable name(s): {', '.join(sorted(_dupes))}. Each variable must have a unique name.")
     else:
         with st.spinner("Simulating…"):
             st.session_state["generated_data"] = generate_data()
