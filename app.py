@@ -185,6 +185,14 @@ def generate_data() -> pd.DataFrame:
         df[dv_col] = rng.binomial(1, prob)
 
     df.insert(0, "id", range(1, n+1))
+
+    # Reorder: id, ab_col, dv_col, custom covariates, then auto covariates
+    auto_cols = ["user_reg_name", "age", "gender", "user_country_of_origin", "user_registration_date", "device"]
+    custom_cols = [cov["name"].strip() for cov in st.session_state.covariates if cov["name"].strip()]
+    priority_cols = ["id", ab_col, dv_col] + custom_cols
+    remaining_cols = [c for c in df.columns if c not in priority_cols]
+    df = df[priority_cols + remaining_cols]
+
     return df
 
 # ── Generate & display ───────────────────────────────────────────────────────
