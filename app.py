@@ -32,7 +32,7 @@ st.markdown(
 )
 
 st.title("👾 A/B Test Data Simulator")
-st.caption("Define your experiment and download simulated data.")
+st.caption("Define your experiment and download simulated data")
 
 # ── 1 · Treatment variable ──────────────────────────────────────────────────
 st.subheader("1 · A/B Test Variable")
