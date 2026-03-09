@@ -15,7 +15,7 @@ fake = Faker()
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="A/B Test Data Simulator 2.0",
+    page_title="A/B Test Data Simulator",
     page_icon="👾",
     layout="centered",
 )
@@ -32,7 +32,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("👾 A/B Test Data Simulator 2.0")
+st.title("👾 A/B Test Data Simulator")
 st.caption("Define your experiment and download simulated data.")
 
 # ── 1 · Treatment variable ──────────────────────────────────────────────────
