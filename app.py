@@ -9,7 +9,6 @@ import numpy as np
 from faker import Faker
 import io
 import zipfile
-import random
 
 fake = Faker()
 
@@ -37,7 +36,7 @@ st.caption("Define your experiment and download simulated data.")
 
 # ── 1 · Treatment variable ──────────────────────────────────────────────────
 st.subheader("1 · A/B Test Variable")
-ab_col = st.text_input("Variable name", value="")
+ab_col = st.text_input("Variable name", value="", key="ab_col")
 
 # ── 2 · Dependent variable ──────────────────────────────────────────────────
 st.subheader("2 · Dependent Variable")
@@ -105,7 +104,8 @@ def generate_data() -> pd.DataFrame:
     n = int(rng.integers(40_000, 60_001))
 
     # Treatment assignment
-    assignment = np.random.choice(['v_A', 'version_A', 'version_A', 'ver_A', 'v_B', 'version_B', 'version_B', 'ver_B', None], size=n)
+    _treatment_values = np.array(['v_A', 'version_A', 'version_A', 'ver_A', 'v_B', 'version_B', 'version_B', 'ver_B', None], dtype=object)
+    assignment = rng.choice(_treatment_values, size=n)
     df = pd.DataFrame({ab_col: assignment})
 
     # Auto-generated covariates
@@ -139,19 +139,19 @@ def generate_data() -> pd.DataFrame:
     total_shift = np.zeros(n)
 
     # Treatment effect
-    treatment_direction = random.choice([-1, 1])
+    treatment_direction = rng.choice([-1, 1])
     treatment_shift = np.where(np.isin(assignment, ['v_A', 'version_A', 'ver_A']),
                                treatment_direction * (0.25 * dv_range * rng.uniform(0.5, 1.0, n)), 0.0)
     total_shift += treatment_shift
 
     # Age effect
-    age_direction = random.choice([-1, 1])
+    age_direction = rng.choice([-1, 1])
     age_scaled = (df["age"] - df["age"].mean()) / df["age"].std()
     age_effect = age_direction * age_scaled * (0.12 * dv_range * rng.uniform(0.5, 1.0, n))
     total_shift += age_effect
 
     # Gender effect
-    gender_direction = random.choice([-1, 1])
+    gender_direction = rng.choice([-1, 1])
     gender_effect = np.where(df["gender"] == "Male", gender_direction * 0.08 * dv_range * rng.uniform(0.5, 1.0, n), 0.0)
     total_shift += gender_effect
 
@@ -160,7 +160,7 @@ def generate_data() -> pd.DataFrame:
         name = cov["name"].strip()
         if not name:
             continue
-        cov_direction = random.choice([-1, 1])
+        cov_direction = rng.choice([-1, 1])
         if cov["type"] == "Numeric":
             val_scaled = (df[name] - df[name].mean()) / df[name].std()
             total_shift += cov_direction * val_scaled * (0.1 * dv_range * rng.uniform(0.5, 1.0, n))
@@ -184,15 +184,16 @@ def generate_data() -> pd.DataFrame:
         prob = 1 / (1 + np.exp(-linear_pred_centered))
         df[dv_col] = rng.binomial(1, prob)
 
-    df[dv_col] = df[dv_col].astype(str)
-
     df.insert(0, "id", range(1, n+1))
     return df
 
 # ── Generate & display ───────────────────────────────────────────────────────
 if st.button("Simulate Data", type="primary", use_container_width=True):
-    with st.spinner("Simulating…"):
-        st.session_state["generated_data"] = generate_data()
+    if not ab_col.strip() or not dv_col.strip():
+        st.error("Please enter names for both the A/B test variable and the dependent variable.")
+    else:
+        with st.spinner("Simulating…"):
+            st.session_state["generated_data"] = generate_data()
 
 if "generated_data" in st.session_state:
     data = st.session_state["generated_data"]
